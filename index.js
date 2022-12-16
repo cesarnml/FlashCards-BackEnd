@@ -1,7 +1,22 @@
+import * as dotenv from 'dotenv'
 import { default as sqlite3 } from 'sqlite3'
+import { createClient } from '@supabase/supabase-js'
+import './assets/Thai__J2__Ch01-BuyStuff/44'
+import testImage from './assets/Thai__J2__Ch01-BuyStuff/44'
 
+dotenv.config()
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+const { data, error } = await supabase.storage.from('images').list()
+const publicUrl = await supabase.storage.from('images').getPublicUrl()
+console.log('publicUrl:', publicUrl.data.publicUrl)
+const image = data[0]
+console.log(image.name)
+console.log(`${publicUrl.data.publicUrl.split('undefined')[0]}${image.name}`)
 const db = new sqlite3.Database('./assets/Thai__J2__Ch01-BuyStuff/collection.anki21')
 
+const uploadResult = await supabase.storage.from('images').upload('testImage', testImage)
+console.log('uploadResult:', uploadResult)
 const sqlNotes = `SELECT mid, flds FROM notes`
 const sqlModels = `SELECT models FROM col`
 
@@ -18,7 +33,7 @@ async function db_all(query) {
 
 const rowsFieldValue = await db_all(sqlNotes)
 const modelId = rowsFieldValue[0].mid
-console.log('modelId:', modelId)
+// console.log('modelId:', modelId)
 const processedValues = rowsFieldValue.map((row) => row.flds.split('\x1F'))
 // console.log('processedValues:', processedValues)
 
@@ -35,6 +50,7 @@ const modelTemplates = model.tmpls.map((template) => {
     order: template.ord,
   }
 })
+// console.log('modelTemplates:', modelTemplates)
 
 const modelValues = processedValues.map((values) => {
   const result = {}
